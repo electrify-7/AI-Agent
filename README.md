@@ -2,7 +2,15 @@
 
 Welcome to the AI-Powered Cold Calling Sales Agent repository! This project implements an intelligent phone agent capable of conducting natural-sounding sales conversations, analyzing customer responses in real-time, and converting leads into sales opportunities.
 
-## Overview
+---
+
+## 🎬 Live Demo
+
+📺 [Demo Video Link]() - Check out our AI Sales Agent in action!
+
+---
+
+## 📋 Overview
 
 This AI Sales Agent is a full-stack intelligent sales system designed to seamlessly integrate into existing sales pipelines. The system leverages advanced natural language processing, voice synthesis, and real-time analytics to create personalized and effective cold calling experiences.
 
@@ -18,7 +26,7 @@ The agent can:
 
 ## Features
 
-### Voice Intelligence
+### 🗣️Voice Intelligence
 
 - Real-time speech-to-text processing
 - Natural-sounding text-to-speech using Eleven Labs
@@ -26,14 +34,14 @@ The agent can:
 - Emotion and sentiment analysis during calls
 
 
-### Business Intelligence
+### 📊 Business Intelligence
 
 - Product matching based on detected customer needs
 - Objection handling with adaptive responses
 - Conversion optimization through continuous learning
 
 
-### Technical Capabilities
+### 💻 Technical Capabilities
 
 - Secure API handling with environment variable protection
 - Flask-based backend for robust request handling
@@ -41,9 +49,9 @@ The agent can:
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
-### Prerequisites
+### 📋 Prerequisites
 
 - Python 3.8 or higher
 - MongoDB instance (planned for future implementation)
@@ -51,8 +59,9 @@ The agent can:
 - OpenAI API key
 - Eleven Labs API key
 
+---
 
-### Installation
+### 🔧 Installation
 
 1. Clone the repository:
 ```bash
@@ -81,7 +90,7 @@ pip install -r requirements.txt
 
 ---
 
-### Configuration
+### ⚙️ Configuration
 
 The system is configured through environment variables in the `.env` file:
 
@@ -128,7 +137,7 @@ python app.py
 
 The server will start on the default port (5000) unless configured otherwise.
 
-### Making Test Calls
+### 📞 Making Test Calls
 
 1. Ensure your Twilio webhook URLs are properly configured to point to your deployed application
 2. Use the Twilio console to initiate test calls or integrate with the API
@@ -136,7 +145,7 @@ The server will start on the default port (5000) unless configured otherwise.
 
 ---
 
-## API Endpoints
+## 🔌 API Endpoints
 
 The system exposes several API endpoints:
 
