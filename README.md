@@ -1,5 +1,3 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" class="logo" width="120"/>
-
 # AI-Powered Cold Calling Sales Agent
 
 Welcome to the AI-Powered Cold Calling Sales Agent repository! This project implements an intelligent phone agent capable of conducting natural-sounding sales conversations, analyzing customer responses in real-time, and converting leads into sales opportunities.
