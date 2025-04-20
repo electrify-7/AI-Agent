@@ -1,0 +1,28 @@
+Flask
+Flask-CORS
+python-dotenv
+twilio
+openai
+groq
+langchain
+requests
+werkzeug
+
+# Audio + Input Handling
+sounddevice
+numpy
+pynput
+scipy
+pygame
+
+# Whisper-based speech recognition
+faster-whisper
+ctranslate2==3.24.0
+
+# Async + utilities
+asyncio
+termcolor
+websockets
+
+# Optional: if you're using Anthropic Claude models
+anthropic==0.21.0
