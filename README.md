@@ -19,8 +19,11 @@ ELEVENLABS_API_KEY=sk_5cd0d008b99f14c415305bbcc3f7119d0b03e58f1c4f5204
 VOICE_ID=DMyrgzQFny3JI1Y1paM5
 
 # Company Details
-COMPANY_NAME="BeHealthy"
-COMPANY_BUSINESS="BHealthy is a personalized Gym company who provides curated fitness service including Gym and specific diet to it's customers"
-COMPANY_PRODUCTS_SERVICES="Silver-Gym-Membership: Access to Gym and all equipments 24*7, Gold-Gym-Membership: Everything in silver plan plus Personalized Diet and Gym plan with Group Classes, Platinum-Gym-Membership: Everything in Gold plan + one2one coaching"
-CONVERSATION_PURPOSE="Primarily to sell one of the gym membership. Alternatively, offer a free onsite appointment & gym day to checkout the services"
-AISALESAGENT_NAME="Emily"
+COMPANY_NAME="ByteMe"
+COMPANY_BUSINESS="ByteMe is a company offering a wide range of high-performance laptops tailored for students, professionals, businesses, and gamers."
+COMPANY_PRODUCTS_SERVICES="Basic-Laptops: A variety of entry-level laptops suitable for everyday tasks,
+Student-Laptops: Laptops tailored for students, combining affordability with performance for learning and study needs,
+Professional-Laptops: Laptops designed for work-related tasks, offering higher performance for multitasking and productivity,
+Gaming-Laptops: High-performance laptops built for gaming, featuring advanced graphics and processing power for an immersive experience."
+CONVERSATION_PURPOSE="Primarily to sell one of the laptop options. Alternatively, offer a visit to the store to check out the products and explore the best fit for their needs."
+AISALESAGENT_NAME="John Jose"
