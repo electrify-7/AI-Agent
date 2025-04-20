@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Live Conversation Stream</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    #messages {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .message {
+      margin-bottom: 15px;
+      padding: 10px;
+      border-left: 4px solid #007BFF;
+      background: #f9f9f9;
+    }
+    .role {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align: center;">📞 Live AI Call Conversation</h2>
+  <div id="messages"></div>
+
+  <script>
+    const messagesDiv = document.getElementById("messages");
+    const eventSource = new EventSource("http://localhost:5000/stream");
+
+    eventSource.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+      const messageEl = document.createElement("div");
+      messageEl.classList.add("message");
+
+      const roleEl = document.createElement("div");
+      roleEl.classList.add("role");
+      roleEl.textContent = data.role === "assistant" ? "🧠 AI:" : "🗣️ User:";
+
+      const contentEl = document.createElement("div");
+      contentEl.textContent = data.content;
+
+      messageEl.appendChild(roleEl);
+      messageEl.appendChild(contentEl);
+      messagesDiv.appendChild(messageEl);
+
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    };
+
+    eventSource.onerror = function(error) {
+      console.error("EventSource failed:", error);
+    };
+  </script>
+</body>
+</html>

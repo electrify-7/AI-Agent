@@ -1,3 +1,4 @@
+
 import openai
 from config import Config
 import json
@@ -5,7 +6,7 @@ from langchain_core.prompts import PromptTemplate
 from prompts import AGENT_STARTING_PROMPT_TEMPLATE, STAGE_TOOL_ANALYZER_PROMPT, AGENT_PROMPT_OUTBOUND_TEMPLATE, AGENT_PROMPT_INBOUND_TEMPLATE
 from flask import session  # Uncomment it after testing.
 from stages import OUTBOUND_CONVERSATION_STAGES, INBOUND_CONVERSATION_STAGES
-from tools import tools_info,onsite_appointment,fetch_product_price,calendly_meeting,appointment_availability
+from tools import tools_info,summariser
 from groq import Groq
 
 # session ={} # Added for testing. remove after testing
@@ -17,14 +18,14 @@ company_business = Config.COMPANY_BUSINESS
 conversation_purpose = Config.CONVERSATION_PURPOSE
 company_products_services = Config.COMPANY_PRODUCT_SERVICES
 conversation_stages = OUTBOUND_CONVERSATION_STAGES
-gclient = Groq(api_key='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')
+gclient = Groq(api_key='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')
 
 def gen_ai_output(prompt):
     response = gclient.chat.completions.create(
                 model="llama-3.1-8b-instant",
                 messages=prompt,
                 temperature=0.5,
-                max_tokens=100,
+                max_tokens=4000,
                 stream=False,
                 top_p=1
             )    
@@ -126,7 +127,7 @@ def initiate_inbound_message():
     
 
 
-def process_message(message_history, user_input):
+def process_message(message_history, user_input, call_sid):
     # if 'message_history' not in session:
     #     session['message_history'] = []
     # print("AI Tool and Conversation stage is decided: ", ai_output)
@@ -140,20 +141,13 @@ def process_message(message_history, user_input):
         if is_tool_required(stage_tool_output):
             print('Tool Required is true')
             tool_name, params = get_tool_details(stage_tool_output)
-            print('Tool called'+ tool_name + 'tool param is: ' + params)
-            if tool_name == "MeetingScheduler":
-                tool_output = calendly_meeting()  # Assuming no parameters needed
+            # print('Tool called'+ tool_name + 'tool param is: ' + params)
+            if tool_name == "s":
+                tool_output = summariser(message_history, call_sid)  # Assuming no parameters needed
                 message_history.append({"role": "api_response", "content": tool_output})
-            elif tool_name == "OnsiteAppointment":
-                tool_output = onsite_appointment()  # Assuming no parameters needed
-                message_history.append({"role": "api_response", "content": tool_output})
-            elif tool_name == "GymAppointmentAvailability":
-                tool_output = appointment_availability()  # Assuming no parameters needed
-                message_history.append({"role": "api_response", "content": tool_output})                
-            elif tool_name == "PriceInquiry":
-                # Ensure params is a dictionary and contains 'product_name'
-                tool_output = fetch_product_price(params)
-                message_history.append({"role": "api_response", "content": tool_output})
+            # elif tool_name == "calc_disc":
+            #     tool_output = calc_disc(message_history, params)  # Assuming no parameters needed
+            #     message_history.append({"role": "api_response", "content": tool_output})                
             else:
                 return ""
     except ValueError as e:
