@@ -144,16 +144,9 @@ def process_message(message_history, user_input):
             if tool_name == "summariser":
                 tool_output = summariser(message_history)  # Assuming no parameters needed
                 message_history.append({"role": "api_response", "content": tool_output})
-            elif tool_name == "fetch_product_db":
-                tool_output = fetch_product_db()  # Assuming no parameters needed
-                message_history.append({"role": "api_response", "content": tool_output})
             elif tool_name == "calc_disc":
-                tool_output = calc_disc(params)  # Assuming no parameters needed
+                tool_output = calc_disc(message_history, params)  # Assuming no parameters needed
                 message_history.append({"role": "api_response", "content": tool_output})                
-            elif tool_name == "prod_price":
-                # Ensure params is a dictionary and contains 'product_name'
-                tool_output = prod_price(params)
-                message_history.append({"role": "api_response", "content": tool_output})
             else:
                 return ""
     except ValueError as e:

@@ -3,6 +3,7 @@ from twilio.twiml.voice_response import VoiceResponse, Gather
 from twilio.rest import Client
 from werkzeug.utils import secure_filename
 from langchain_core.prompts import PromptTemplate
+from tools.py import fetch_product_db
 import os
 import json
 import uuid
@@ -11,12 +12,15 @@ import threading
 import time
 
 from audio_helpers import text_to_speech, save_audio_file
+# from conversation import post_conversation_update
 from ai_helpers import process_initial_message, process_message, initiate_inbound_message
 from config import Config
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
 
 # Directory for temporary audio files (already in use)
 AUDIO_DIR = 'audio_files'
@@ -95,11 +99,18 @@ def serve_audio(filename):
 
 @app.route('/start-call', methods=['POST'])
 def start_call():
-    unique_id = str(uuid.uuid4())
+    # unique_id = str(uuid.uuid4())
     data = request.json or {}
-    customer_name = data.get('customer_name', 'Valued Customer')
-    customer_phonenumber = data.get('customer_phonenumber', '')
-    customer_businessdetails = data.get('customer_businessdetails', 'No details provided.')
+    laptop_data = data.get('laptop_data','')
+    print(laptop_data)
+    unique_id = data.get('callid', str(uuid.uuid4()))
+    customer_name = data.get('name', 'Valued Customer')
+    customer_phonenumber = data.get('contactno', '')
+    customer_businessdetails = data.get('last_call_summary', 'No details provided.')
+    customer_datetime = data.get('datetime', '')
+    customer_product_name = data.get('product_name', '')
+    customer_user_id = data.get('userid', '')
+
 
     # AI initial message
     ai_message = process_initial_message(customer_name, customer_businessdetails)
@@ -113,13 +124,34 @@ def start_call():
     # Initialize message history and persist to file
     initial_transcript = (
         f"Customer Name: {customer_name}. "
+        f"Customer Contact Number: {customer_phonenumber}. "
+        f"unique  id of call: {unique_id}. "
+        f"Customer id: {customer_user_id}. "
+        f"Date and Time: {customer_datetime}. "
+        f"Customer Product name: {customer_product_name}. "
         f"Customer's business details: {customer_businessdetails}"
+        f"Laptop Data: {laptop_data}"
     )
     history = [
         {"role": "user", "content": initial_transcript},
         {"role": "assistant", "content": initial_message}
     ]
     save_conversation(unique_id, history)
+    # post_conversation_update(unique_id, history)
+    try:
+        import requests
+        requests.post(
+            "http://localhost:5000/conversation",
+            json={
+                "unique_id": unique_id,   # or use `unique_id` if available in context
+                "messages": history[-2:0]
+            },
+            timeout=2
+        )
+    except Exception as e:
+        logger.warning(f"Failed to send to /conversation: {e}")
+
+
 
     # Build TwiML response
     response = VoiceResponse()
@@ -169,6 +201,21 @@ def gather_input_inbound():
     # Save initial inbound history
     history = [{"role": "assistant", "content": agent_response}]
     save_conversation(unique_id, history)
+    # post_conversation_update(unique_id, history)
+    try:
+        import requests
+        requests.post(
+            "http://localhost:5000/conversation",
+            json={
+                "unique_id": unique_id,   # or use `unique_id` if available in context
+                "messages": history
+            },
+            timeout=2
+        )
+    except Exception as e:
+        logger.warning(f"Failed to send to /conversation: {e}")
+
+
 
     resp.redirect(url_for('gather_input', CallSid=unique_id))
     return str(resp)
@@ -199,6 +246,24 @@ def process_speech():
     history.append({"role": "user", "content": speech_result})
     history.append({"role": "assistant", "content": response_text})
     save_conversation(call_sid, history)
+    # history[-2:] is exactly the [user, assistant] we just added
+    # post_conversation_update(call_sid, history[-2:])
+
+
+    # Also send new messages to live stream UI
+    try:
+        import requests
+        requests.post(
+            "http://localhost:5000/conversation",
+            json={
+                "unique_id": call_sid,   # or use `unique_id` if available in context
+                "messages": history[-2:]
+            },
+            timeout=2
+        )
+    except Exception as e:
+        logger.warning(f"Failed to send to /conversation: {e}")
+
 
     return str(resp)
 
@@ -211,6 +276,35 @@ def event():
         delete_conversation(call_sid)
         logger.info(f"Call {call_sid} ended with status: {call_status}")
     return ('', 204)
+
+
+
+global CONVERSATION_HISTORY
+from flask import Response
+import queue
+CONVERSATIONS = {}  # { unique_id: [messages] }
+
+@app.route('/conversation', methods=['POST'])
+def receive_conversation():
+    data = request.json
+    unique_id = data.get("unique_id")
+    messages = data.get("messages", [])
+
+    if not unique_id or not isinstance(messages, list):
+        return jsonify({"error": "Invalid format"}), 400
+
+    # Update conversation history
+    if unique_id not in CONVERSATIONS:
+        CONVERSATIONS[unique_id] = []
+    CONVERSATIONS[unique_id].extend(messages)
+
+
+    return '', 204
+
+
+@app.route('/conversation/<unique_id>', methods=['GET'])
+def get_conversation(unique_id):
+    return jsonify(CONVERSATIONS.get(unique_id, []))
 
 
 if __name__ == '__main__':

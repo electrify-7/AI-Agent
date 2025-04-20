@@ -1,20 +1,13 @@
 import requests
-
+import json
+from google import genai
 tools_info = {
-    "fetch_product_db": {
-        "name": "fetch_product_db",
-        "description": "Fetches the complete database of products."
-    },
-    "prod_price": {
-        "name": "prod_price",
-        "description": "Fetches the price of products from the database",
+    "calc_disc": {
+        "name": "calc_disc",
+        "description": "Calculates discount based on current sentiment score and maximum discount.",
         "parameters": {
-            "product_name": ["Silver-Gym-Membership", "Gold-Gym-Membership", "Platinum-Gym-Membership"]
+            "product_name": []
         }
-    },
-    "calculate_discount": {
-        "name": "calculate_discount",
-        "description": "Calculates discount based on current sentiment score and maximum discount."
     },
     "summariser": {
         "name": "summariser",
@@ -24,17 +17,8 @@ tools_info = {
 }
 
 
-# def fetch_product_price(arguments):
-#     print('Fetch product Price is called')
-#     return f"The price is $29 per month."
 
-
-def fetch_product_db():
-
-
-
-def calc_disc(product_name):    
-   #llm call for score, response se max discount, based on that final discount.
+def calc_disc(message_history,product_name):    
     print('Calculating discount...')
 
     # # Step 1: Fetch the full product database
@@ -45,17 +29,6 @@ def calc_disc(product_name):
     # if response.status_code != 200:
     #     return "Failed to fetch product data."
 
-    all_products = response.json()
-
-    # Step 2: Find the specific product row
-    product = next((item for item in all_products if item['title'].lower() == product_name.lower()), None)
-    
-    if not product:
-        return "Product not found."
-
-    price = product.get('price', 0)
-    price = price*1000
-
     # Step 3: Call LLM to get sentiment score (stub below)
     client = genai.Client(api_key="AIzaSyCBwvcLQ4n5QrJ9Q3l28nyphMkXa0ucyjs")
 
@@ -64,58 +37,55 @@ def calc_disc(product_name):
         f"Conversation History:\n{message_history}\n\n"
     )
 
+    prompt2 = (
+       "Take the laptop database from message history - \n{message_history}\n. From this take the max_discount in percentage and return as int. Return only the integer max discount."
+    )
     llm_response = client.models.generate_content(
         model="gemini-2.0-flash",
         contents=prompt
+    )
+
+    llm_response2 = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt2
     )
 
     sentiment_score_text = llm_response.text.strip()
 
     sentiment_score = float(sentiment_score_text)
     print(sentiment_score)
+    max_disc_text = llm_response2.text.strip()
 
+    max_discount = int(max_disc_text)
     # Step 4: Calculate discount
-    offered_price = round((sentiment_score) * price, 2)
+    offered_discount = max_discount*(1-sentiment_score)
+    return offered_discount
 
-    print(offered_price)
 
 
 def summariser(message_history):
-     #Just before cutting the call, llm se json format usme de denge - Name, Contact, Product, Datetime, Sentiment, Sold/Not, Final Discount, Sold Price, short desc. POST
     print('Summarising the call...')
-
-    # Step 1: Call Gemini LLM to get structured JSON summary
-    client = genai.Client(api_key="AIzaSyCBwvcLQ4n5QrJ9Q3l28nyphMkXa0ucyjs")
-
+    client = genai.Client(api_key="AIzaSyCDRGVamqQ64AgaWdfNndPQRzCt31NY9qE")
     prompt = (
-        "You are an AI assistant summarising a sales call.\n"
-        "Given the full message history of a conversation, return a JSON summary with these fields:\n"
-        "Customer Name, Contact, Product Name, Datetime, Sentiment (0 to 1), "
-        "Sold/Not (Yes/No), Final Discount (%), Sold Price ($), "
-        "Short Summary (2-3 lines about the call).\n\n"
+        'You are an AI assistant that summarizes sales call conversations. Given the entire conversation history between a sales agent and a customer, generate a structured JSON summary using the following fields: userid: user id given in history. callid: call id given in history. datetime: the time given in conversation_history. discount: 15.0 — the percentage discount given. name: "Alice Johnson" — the full name of the customer. product_name: "SuperCRM Pro" — the product discussed or sold. sentiment_score: 0.75 — a value from 0 to 1 indicating customer sentiment. shortDescription: "Converted to Pro plan with 15% discount." — a short summary of the call outcome. sold: 1 — use 1 if the product was sold, else 0. soldPrice: 849.99 — the final price paid by the customer. contactno: Given in message history'
         f"Conversation History:\n{message_history}\n\n"
-        "Respond in JSON format only."
+        "Respond in JSON format only. Use the conversation history to generate the JSON response. and donot include any other thing, just json use _ wherever required"
     )
+    llm_resp = client.models.generate_content(model="gemini-2.0-flash", contents=prompt)
+    raw = llm_resp.text.strip()
+    # Clean up code fences
+    if raw.startswith(''):
+        raw = raw.split('')[-2]
+    summary_json = json.loads(raw)
 
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=prompt
-    )
-    print(response)
-    # Step 2: Parse the response text as JSON
-    try:
-      raw_text = response.text.strip()
+    # Store in database via backend
+    store_document(collection_name="summaryData", document=summary_json)
 
-      # Remove markdown code block syntax like ```json and ```
-      if raw_text.startswith("```json"):
-          raw_text = raw_text.replace("```json", "").strip()
-      if raw_text.endswith("```"):
-          raw_text = raw_text[:-3].strip()
+    # POST to /summary endpoint on local server
+    post_resp = requests.post("http://localhost:5000/summary", json=summary_json)
+    if post_resp.status_code == 200:
+        print("Summary successfully posted to /summary.")
+    else:
+        print(f"Failed to post summary: {post_resp.status_code} - {post_resp.text}")
 
-    # Parse as JSON
-      summary_json = json.loads(raw_text)
-
-    except Exception as e:
-      return f"Failed to parse summary JSON: {e}"
-    
-    print(summary_json)
+    return summary_json
