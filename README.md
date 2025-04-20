@@ -14,6 +14,7 @@ The agent can:
 - Provide personalized product recommendations
 - Schedule follow-up actions and store conversation insights
 
+---
 
 ## Features
 
@@ -27,7 +28,6 @@ The agent can:
 
 ### Business Intelligence
 
-- Customer profile integration and enrichment
 - Product matching based on detected customer needs
 - Objection handling with adaptive responses
 - Conversion optimization through continuous learning
@@ -35,35 +35,11 @@ The agent can:
 
 ### Technical Capabilities
 
-- Scalable architecture supporting concurrent calls
-- MongoDB integration for data persistence
 - Secure API handling with environment variable protection
 - Flask-based backend for robust request handling
 - Frontend dashboard for call monitoring and analytics
 
-
-## System Architecture
-
-The system is built with a modular architecture that allows for easy scaling and component replacement:
-
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│                 │     │                 │     │                 │
-│  Twilio Voice   │◄────┤  Flask Backend  │◄────┤  OpenAI LLM     │
-│  Integration    │     │  Controller     │     │  Processing     │
-│                 │     │                 │     │                 │
-└────────┬────────┘     └────────┬────────┘     └────────┬────────┘
-         │                       │                       │
-         │                       │                       │
-         │                       ▼                       │
-         │              ┌─────────────────┐              │
-         │              │                 │              │
-         └──────────────┤  MongoDB Data   │◄─────────────┘
-                        │  Storage        │
-                        │                 │
-                        └─────────────────┘
-```
-
+---
 
 ## Getting Started
 
@@ -79,14 +55,12 @@ The system is built with a modular architecture that allows for easy scaling and
 ### Installation
 
 1. Clone the repository:
-
 ```bash
 git clone https://github.com/electrify-7/AI-Agent.git
 cd AI-Agent
 ```
-
+<!--
 2. Create and activate a virtual environment:
-
 ```bash
 python -m venv venv
 # On Windows
@@ -94,16 +68,18 @@ venv\Scripts\activate
 # On macOS/Linux
 source venv/bin/activate
 ```
+-->
 
-3. Install dependencies:
-
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Configure your environment variables:
+3. Configure your environment variables:
     - Copy the `.env.example` file to `.env`
     - Fill in all required API keys and configuration values
+
+---
 
 ### Configuration
 
@@ -138,6 +114,7 @@ CONVERSATION_PURPOSE="Enter the primary goal of sales conversations"
 AISALESAGENT_NAME="Enter Agent Name"
 ```
 
+---
 
 ## Usage
 
@@ -157,16 +134,7 @@ The server will start on the default port (5000) unless configured otherwise.
 2. Use the Twilio console to initiate test calls or integrate with the API
 3. Monitor call logs and conversation transcripts in the frontend dashboard
 
-### Frontend Dashboard
-
-The project includes a basic frontend dashboard that allows you to:
-
-- View ongoing and completed calls
-- Access conversation transcripts
-- Analyze call performance metrics
-- Manage agent configurations
-
-Note: The frontend is currently a basic implementation. Database integration and advanced analytics features are planned for future development.
+---
 
 ## API Endpoints
 
@@ -181,6 +149,8 @@ The system exposes several API endpoints:
 | `/generate-response` | POST | Creates AI responses based on conversation context |
 | `/text-to-speech` | POST | Converts text responses to natural speech |
 
+---
+
 ## Customization
 
 ### Agent Personality
@@ -194,6 +164,8 @@ Update the `COMPANY_PRODUCTS_SERVICES` environment variable with detailed produc
 ### Conversation Flows
 
 The conversation logic can be customized by modifying the AI prompt templates and conversation handlers in the codebase.
+<!--
+---
 
 ## Security
 
@@ -204,6 +176,7 @@ This system handles sensitive customer information and requires proper security 
 - Ensure GDPR and other regulatory compliance for call recording and data storage
 - Regularly rotate API keys and access credentials
 
+---
 
 ## Troubleshooting
 
@@ -213,6 +186,21 @@ This system handles sensitive customer information and requires proper security 
 2. **Slow response times**: Optimize OpenAI API calls and implement caching
 3. **Call connection failures**: Verify Twilio credentials and webhook configurations
 4. **Database connection errors**: Check MongoDB connection string and network access
+-->
+---
+
+### Frontend Dashboard
+
+The project includes a basic frontend dashboard that allows you to:
+
+- View ongoing and completed calls
+- Access conversation transcripts
+- Analyze call performance metrics
+- Manage agent configurations
+
+<p>Note: The frontend is currently a basic implementation. Database integration and advanced analytics features are planned for future development.</p>
+
+---
 
 ## Future Development
 
@@ -223,11 +211,22 @@ This system handles sensitive customer information and requires proper security 
 - Advanced conversation analytics and insights
 
 
-## Contact
 
-For questions or support, please open an issue in the GitHub repository or contact the project maintainers.
+[^1]: https://github.com/adam-p/markdown-here/wiki/markdown-cheatsheet
 
----
+[^2]: https://google.github.io/styleguide/docguide/style.html
 
-*This AI Sales Agent is designed to augment human sales teams, not replace them. Always ensure compliance with local regulations regarding automated calling systems and disclosure requirements.*
+[^3]: https://www.markdownguide.org/hacks/
+
+[^4]: https://docs.gitlab.com/ee/user/markdown.html
+
+[^5]: https://www.jetbrains.com/help/hub/markdown-syntax.html
+
+[^6]: https://docs.github.com/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
+
+[^7]: https://stackoverflow.com/questions/44610355/how-to-create-horizontal-line-in-markdown-using-hexo-framework
+
+[^8]: https://www.shecodes.io/athena/98542-how-to-wrap-text-in-a-readme-file-using-markup
+
+[^9]: https://css-tricks.com/little-stuff-markdown-always-forget-google/
 
