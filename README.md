@@ -56,7 +56,6 @@ The agent can:
 - Python 3.8 or higher
 - MongoDB instance (planned for future implementation)
 - Twilio account
-- OpenAI API key
 - Eleven Labs API key
 
 ---
