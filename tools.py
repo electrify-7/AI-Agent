@@ -154,7 +154,7 @@ def fetch_product_db(membership_type):
 
 def summariser(message_history):
     # Step 1: Call Gemini LLM to get structured JSON summary
-    client = genai.Client(api_key="AIzaSyCBwvcLQ4n5QrJ9Q3l28nyphMkXa0ucyjs")
+    client = genai.Client(api_key="insert")
 
     prompt = (
         "You are an AI assistant summarising a sales call.\n"
