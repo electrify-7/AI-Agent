@@ -16,7 +16,7 @@ from tools import save_call
 
 load_dotenv()  # Load environment variables from .env file
 
-gclient = Groq(api_key='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')
+gclient = Groq(api_key='insert')
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
