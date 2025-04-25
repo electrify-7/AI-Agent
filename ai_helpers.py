@@ -7,7 +7,6 @@ from flask import session  # Uncomment it after testing.
 from stages import OUTBOUND_CONVERSATION_STAGES, INBOUND_CONVERSATION_STAGES
 from tools import tools_info,onsite_appointment,fetch_product_price,calendly_meeting,appointment_availability
 from groq import Groq
-
 # session ={} # Added for testing. remove after testing
 
 openai.api_key = Config.OPENAI_API_KEY
@@ -17,7 +16,7 @@ company_business = Config.COMPANY_BUSINESS
 conversation_purpose = Config.CONVERSATION_PURPOSE
 company_products_services = Config.COMPANY_PRODUCT_SERVICES
 conversation_stages = OUTBOUND_CONVERSATION_STAGES
-gclient = Groq(api_key='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')
+gclient = Groq(api_key='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')
 
 def gen_ai_output(prompt):
     response = gclient.chat.completions.create(
@@ -65,6 +64,8 @@ def get_tool_details(ai_output):
         raise ValueError("Invalid JSON format in AI output.")
 
 def process_initial_message(customer_name, customer_problem):
+
+
     
     initial_prompt = AGENT_STARTING_PROMPT_TEMPLATE.format(
         salesperson_name=salesperson_name,
@@ -185,51 +186,3 @@ def process_message(message_history, user_input):
     return talkback_response
 
 
-# Test Section : Remove After Testing
-#--------------------------------------
-
-
-# Initial customer details
-# customer_name = "John Doe"
-# customer_problem = "Looking for a gym membership to address back pain"
-
-# # Initialize session
-# session['message_history'] = []
-# session['conversation_stage_id'] = 1
-
-# initial_transcript = "Customer Name:" + customer_name + ". Customer filled up details in the website:" + customer_problem
-# session['message_history'].append({"role": "user", "content": initial_transcript})
-
-# # Generate initial message
-# initial_response = process_initial_message(customer_name, customer_problem)
-# session['message_history'].append({"role": "assistant", "content": initial_response})
-
-# # Display initial AI response
-# print("Assistant Response:", initial_response)
-
-# # # Interactive loop to simulate conversation
-# # while session.get('conversation_stage_id', 1) < 8:
-# #     user_input = input("Your response: ")
-# #     assistant_response = process_message(session['message_history'], user_input)
-# #     session['message_history'].append({"role": "assistant", "content": assistant_response})
-# #     stage_tool_output=invoke_stage_tool_analysis(session['message_history'], 'Based on last assistant response determine conversation stage')
-# #     stage = get_conversation_stage(stage_tool_output)
-# #     session['conversation_stage_id'] = stage
-# #     print("Assistant Response:", assistant_response)
-    
-# while True:
-#     user_input = input("Your response: ")
-    
-#     # Generate the assistant's response based on user input and message history
-#     assistant_response = process_message(session['message_history'], user_input)
-    
-#     # Append the assistant's response to the message history
-#     session['message_history'].append({"role": "assistant", "content": assistant_response})
-    
-#     # Check if the current assistant response contains 'END_OF_CALL'
-#     if "<END_OF_CALL>" in assistant_response:
-#         print("Assistant Response:", assistant_response)
-#         print("The conversation has ended.")
-#         break    
-#     # Print the assistant's response
-#     print("Assistant Response:", assistant_response)

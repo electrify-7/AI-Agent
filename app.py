@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify, url_for, after_this_request, send_from_directory, abort
+from flask import Flask, request, jsonify, url_for, after_this_request, send_from_directory, abort, session
 from twilio.twiml.voice_response import VoiceResponse, Gather
 from twilio.rest import Client
 from werkzeug.utils import secure_filename
 from langchain_core.prompts import PromptTemplate
+from tools import save_call
 import os
 import json
 import uuid
@@ -99,13 +100,33 @@ def serve_audio(filename):
 @app.route('/start-call', methods=['POST'])
 def start_call():
     unique_id = str(uuid.uuid4())
-    data = request.json or {}
-    customer_name = data.get('customer_name', 'Valued Customer')
-    customer_phonenumber = data.get('customer_phonenumber', '')
-    customer_businessdetails = data.get('customer_businessdetails', 'No details provided.')
+    #get it here
+    # data = request.json or {}
+    data = {"name" : "prateek", "contact" : "+919649966618", "datetime": "2025-04-22 00:00"}
+    customer_name = data.get('name', 'A valued Customer')
+    customer_contact = data.get('contact', '123456789')
+    datetime = data.get('datetime', 0)
+    customer_lastcall = data.get('lastcall', 'there was no last call, it is a new customer')
+
+    session['customer_name'] = customer_name
+    session['customer_contact'] = customer_contact
+
+
+    call = type('Call', (), {})()
+    call.sid = unique_id
+    metadata = {
+        "customer_name": customer_name,
+        "customer_contact": customer_contact
+    }
+    with open(f"conversations/{call.sid}_meta.json", "w") as f:
+        json.dump(metadata, f)
+
+    #customer_name = data.get('customer_name', 'Valued Customer')
+    #customer_phonenumber = data.get('customer_phonenumber', '')
+   # customer_businessdetails = data.get('customer_businessdetails', 'No details provided.')
 
     # AI initial message
-    ai_message = process_initial_message(customer_name, customer_businessdetails)
+    ai_message = process_initial_message(customer_name, customer_lastcall)
     initial_message = clean_response(ai_message)
 
     # Text-to-speech
@@ -116,7 +137,7 @@ def start_call():
     # Initialize message history and persist to file
     initial_transcript = (
         f"Customer Name: {customer_name}. "
-        f"Customer's business details: {customer_businessdetails}"
+        f"Customer's business details: {customer_lastcall}"
     )
     history = [
         {"role": "user", "content": initial_transcript},
@@ -139,13 +160,14 @@ def start_call():
     # Build TwiML response
     response = VoiceResponse()
     response.play(url_for('serve_audio', filename=secure_filename(audio_filename), _external=True))
-    redirect_url = f"{Config.APP_PUBLIC_GATHER_URL}?CallSid={unique_id}"
-    response.redirect(redirect_url)
+    gather_url = url_for('gather_input', CallSid=unique_id, _external=True)
+    app.logger.info(f"Redirecting Twilio to: {gather_url}")
+    response.redirect(gather_url)
 
     # Initiate outbound call
     call = client.calls.create(
         twiml=str(response),
-        to=customer_phonenumber,
+        to=customer_contact,
         from_=Config.TWILIO_FROM_NUMBER,
         method="GET",
         status_callback=Config.APP_PUBLIC_EVENT_URL,
@@ -160,12 +182,12 @@ def gather_input():
     resp = VoiceResponse()
     gather = Gather(
         input='speech',
-        action=url_for('process_speech', CallSid=call_sid),
+        action=url_for('process_speech', CallSid=call_sid, _external=True),
         speechTimeout='auto',
         method="POST"
     )
     resp.append(gather)
-    resp.redirect(url_for('gather_input', CallSid=call_sid))
+    resp.redirect(url_for('gather_input', CallSid=call_sid, _external=True))
     return str(resp)
 
 
@@ -197,17 +219,18 @@ def gather_input_inbound():
 
 
 
-    resp.redirect(url_for('gather_input', CallSid=unique_id))
+    resp.redirect(url_for('gather_input', CallSid=unique_id, _external=True))
     return str(resp)
 
 
-@app.route('/process-speech', methods=['POST'])
+@app.route('/process-speech', methods=['POST', 'GET'])
 def process_speech():
     speech_result = request.values.get('SpeechResult', '').strip()
     call_sid = request.args.get('CallSid', '')
 
     history = load_conversation(call_sid)
 
+    speech_result = request.values.get('SpeechResult', '').strip()
     ai_response_text = process_message(history, speech_result)
     response_text = clean_response(ai_response_text)
 
@@ -220,7 +243,7 @@ def process_speech():
     if "<END_OF_CALL>" in ai_response_text:
         resp.hangup()
     else:
-        resp.redirect(url_for('gather_input', CallSid=call_sid))
+        resp.redirect(url_for('gather_input', CallSid=call_sid, _external=True))
 
     # Update and persist history
     history.append({"role": "user", "content": speech_result})
@@ -245,20 +268,44 @@ def process_speech():
     return str(resp)
 
 
+def load_call_metadata(call_sid):
+    try:
+        with open(f"conversations/{call_sid}_meta.json", "r") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f">>> Failed to load metadata for {call_sid}:", e)
+        return {}
+
+
+
+
 @app.route('/event', methods=['POST'])
 def event():
     call_status = request.values.get('CallStatus', '')
     call_sid = request.values.get('CallSid', '')
+
     if call_status in ['completed', 'busy', 'failed'] and call_sid:
+        print(">>> [event] Saving summary...")
+
+        history = load_conversation(call_sid)
+        meta = load_call_metadata(call_sid)
+
+        save_call(
+            history,
+            meta.get('customer_name', 'Unknown'),
+            meta.get('customer_contact', 'Unknown')
+        )
+
         delete_conversation(call_sid)
-        logger.info(f"Call {call_sid} ended with status: {call_status}")
-    return ('', 204)
+
+    return '', 204
 
 
 
 global CONVERSATION_HISTORY, STREAM_QUEUES
 from flask import Response
 import queue
+
 
 
 CONVERSATION_HISTORY = []
@@ -305,7 +352,10 @@ def stream():
     return Response(event_stream(), content_type='text/event-stream')
 
 
-
+@app.errorhandler(404)
+def handle_404(e):
+    print(f"⚠️  404 Not Found: {request.method} {request.path}")
+    return "Not Found", 404
 
 
 

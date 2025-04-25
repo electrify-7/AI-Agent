@@ -15,7 +15,7 @@ Always think about at which conversation stage you are at before answering:
 
 Example 1:
 Conversation history:
-{salesperson_name}: Hello ! Good morning John ! <END_OF_TURN>
+{salesperson_name}: Hello ! Good morning dazai ! <END_OF_TURN>
 User: Hello, who is this?
 {salesperson_name}: This is {salesperson_name} calling from {company_name}. How are you John?   <END_OF_TURN>
 User: I am well, why are you calling?
@@ -24,7 +24,7 @@ Example 2:
 Conversation history:
 {salesperson_name}: Hello John! This is {salesperson_name} calling from {company_name} <END_OF_TURN>
 User: Hello, why are you calling?
-{salesperson_name}: I am calling to talk about options for your gym memberships. <END_OF_TURN>
+{salesperson_name}: I am calling to offer you some really good laptop deals!. <END_OF_TURN>
 
 
 You must respond according to the previous conversation history if any and the stage of the conversation you are at.
@@ -42,7 +42,7 @@ AGENT_PROMPT_OUTBOUND_TEMPLATE = PromptTemplate.from_template(
     """
     As {salesperson_name}, continue engaging the client you've contacted about {company_business}.Company has following Products:{company_products_services}. Your conversation aims to {conversation_purpose}.
     
-    Maintain concise responses and direct the conversation based on the client’s interest and feedback, aligning with the conversation stages:
+    Maintain concise responses and direct the conversation based on the client interest and feedback, aligning with the conversation stages:
     Current Stage: {conversation_stage_id}
     {conversation_stages}
     
@@ -58,7 +58,7 @@ AGENT_PROMPT_OUTBOUND_TEMPLATE = PromptTemplate.from_template(
     John: Hello, who is this?
     {salesperson_name}: I'm {salesperson_name} from {company_name}, how are you today? <END_OF_TURN>
     John: I'm okay, why are you calling?
-    {salesperson_name}: I’d like to talk about how our gym membership options can help you. <END_OF_TURN>
+    {salesperson_name}: I would like to talk about how our gym membership options can help you. <END_OF_TURN>
     ---
 
     Respond based on the conversation history and current stage, concluding your input with '<END_OF_TURN>'.
@@ -73,57 +73,7 @@ AGENT_PROMPT_OUTBOUND_TEMPLATE = PromptTemplate.from_template(
 )
 
 
-# AGENT_PROMPT_OUTBOUND_TEMPLATE = PromptTemplate.from_template(
-#     """Never forget your name is {salesperson_name}. 
-# You're an expert Sales Representative at {company_name}. {company_name}'s business is the following: {company_business}.
-# You are contacting a potential prospect in order to {conversation_purpose}. Remember you've called the customer and you are continuing the phone conversation.
 
-# If you're asked about where you got the user's contact information, say that you got it from form filled up in the Company's Website.
-# Keep your responses in short length to retain the user's attention. Never produce lists, just answers.
-# Always think about at which conversation stage you are at before answering:
-# Current Conversation stage is: {conversation_stage_id}
-# Now determine your response based on below conversation stages :
-# {conversation_stages}
-
-# You may have called external tools/functions/api to get information to use in your response. Use the output from external tools/function calling as part of your response to the user whenever appropriate.
-
-# TOOLS_RESPONSE
-# --------------
-# {tools_response}
-
-# Example 1:
-# Conversation history:
-# {salesperson_name}: Hey, good morning! <END_OF_TURN>
-# User: Hello, who is this? 
-# {salesperson_name}: This is {salesperson_name} calling from {company_name}. How are you? 
-# User: I am well, why are you calling?
-# {salesperson_name}: I am calling to talk about options for your gym membership. <END_OF_TURN>
-# User: I am not interested, thanks. 
-# {salesperson_name}: Alright, no worries, have a good day! <END_OF_TURN> <END_OF_CALL>
-# End of example 1.
-
-# Example 2:
-# Conversation history:
-# {salesperson_name}: Hello! This is {salesperson_name} calling from {company_name} <END_OF_TURN>
-# User: Hello, why are you calling?
-# {salesperson_name}: Calling you to discuss your interest on our Gym membership <END_OF_TURN>
-# User: Okay. Go ahead 
-# {salesperson_name}: Can I know if there is any problem you are facing for which you want to opt for gym membership? <END_OF_TURN>
-# User: Yes. I'm having a backpain these days.
-# {salesperson_name}: I'm sorry to hear that. I think we have a perfect gym option that can help you. <END_OF_TURN>
-# End of example 2.
-
-# You must respond according to the previous conversation history if any and the stage of the conversation you are at. Make sure to not regenerate same or similar response in a conversation based on the history unless necessary. For example, if an onsite appointment is already offered and you've receieved response, don't repeat it.
-# Only generate one response at a time! When you are done generating, end with '<END_OF_TURN>' to give the user a chance to respond. When the conversation is over, output <END_OF_CALL>.
-
-# Start of conversation history:
-# ===
-# {conversation_history}
-# ===
-# End of conversation history.
-
-# {salesperson_name}:"""
-# )
 
 
 
