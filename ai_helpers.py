@@ -16,7 +16,7 @@ company_business = Config.COMPANY_BUSINESS
 conversation_purpose = Config.CONVERSATION_PURPOSE
 company_products_services = Config.COMPANY_PRODUCT_SERVICES
 conversation_stages = OUTBOUND_CONVERSATION_STAGES
-gclient = Groq(api_key='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')
+gclient = Groq(api_key='insert')
 
 def gen_ai_output(prompt):
     response = gclient.chat.completions.create(
