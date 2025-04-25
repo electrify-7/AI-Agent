@@ -16,7 +16,7 @@ from tools import save_call
 
 load_dotenv()  # Load environment variables from .env file
 
-gclient = Groq(api_key='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')
+gclient = Groq(api_key='insert')
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
@@ -152,7 +152,7 @@ def start_call():
     """Initiates the call to the customer."""
     # Extract the JSON data sent with the POST request
     session['message_history'] = []
-    data = {"name" : "prateek", "contact" : "+919649966618", "datetime": "2025-04-22 00:00"}
+    data = {"name" : "prateek", "contact" : "+num", "datetime": "2025-04-22 00:00"}
     customer_name = data.get('name', '')
     customer_contact = data.get('contact', '')
     dateandtime = data.get('dateandtime', '00:00:00')
